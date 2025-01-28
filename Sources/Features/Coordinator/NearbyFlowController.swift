@@ -1,5 +1,5 @@
 //
-//  Colors.swift
+//  NearbyFlowController.swift
 //  Nearby
 //
 //  Created by Rauls on 28/01/25.
@@ -12,14 +12,15 @@ class NearbyFlowController {
     
     private var navigationController: UINavigationController?
     
-    init(navigationController: UINavigationController? = nil) {
-        self.navigationController = navigationController
+    init() {
+        
     }
     
     func start() -> UINavigationController? {
-        let startViewController = SplashViewController()
-        self.navigationController = startViewController
-        return startViewController
+        let contentView = SplashView()
+        let startViewController = SplashViewController(contentView: contentView)
+        self.navigationController = UINavigationController(rootViewController: startViewController)
+        return navigationController
     }
     
 }

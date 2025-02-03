@@ -8,8 +8,6 @@ import UIKit
 
 class SplashView: UIView {
     
-//    let tipsView = TipsView(icon: UIImage(named: "mapIcon")!, title: "teste", description: "teste")
-  
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupUI()
@@ -38,7 +36,6 @@ class SplashView: UIView {
     private func setupUI() {
         self.addSubview(logoImageView)
         self.addSubview(backgroundView)
-//        self.addSubview(tipsView)
         
         setupConstrains()
     }
@@ -52,9 +49,6 @@ class SplashView: UIView {
             backgroundView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             backgroundView.leadingAnchor.constraint(equalTo: self.leadingAnchor),
             backgroundView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
-            
-//            tipsView.topAnchor.constraint(equalTo: logoImageView.bottomAnchor, constant: 50),
-//            tipsView.centerXAnchor.constraint(equalTo: self.centerXAnchor)
         ])
     }
     

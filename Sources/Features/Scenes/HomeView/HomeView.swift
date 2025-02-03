@@ -10,6 +10,10 @@ import MapKit
 
 class HomeView: UIView {
     
+    private var filterButtonAction: ((Category) -> Void)?
+    private var categories: [Category] = []
+    private var selectedButton: UIButton?
+    
     let mapView: MKMapView = {
         let mapView = MKMapView()
         mapView.translatesAutoresizingMaskIntoConstraints = false
@@ -94,6 +98,8 @@ class HomeView: UIView {
         containerView.addSubview(placesTableView)
         
         setupConstraints()
+        setupPanGesture()
+        
     }
 
     private func setupConstraints() {
@@ -103,21 +109,21 @@ class HomeView: UIView {
             mapView.leadingAnchor.constraint(equalTo: leadingAnchor),
             mapView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.65),
             
-            filterScrollView.topAnchor.constraint(equalTo: topAnchor, constant: 48),
-            filterScrollView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24),
+            filterScrollView.topAnchor.constraint(equalTo: topAnchor, constant: 80),
+            filterScrollView.leadingAnchor.constraint(equalTo: leadingAnchor),
             filterScrollView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            filterScrollView.heightAnchor.constraint(equalToConstant: 86),
+            filterScrollView.heightAnchor.constraint(equalTo: filterStackView.heightAnchor),
             
             containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor),
             containerView.topAnchor.constraint(equalTo: mapView.bottomAnchor),
             
-            filterStackView.topAnchor.constraint(equalTo: filterStackView.topAnchor),
-            filterStackView.leadingAnchor.constraint(equalTo: filterStackView.leadingAnchor),
-            filterStackView.trailingAnchor.constraint(equalTo: filterStackView.trailingAnchor),
-            filterStackView.bottomAnchor.constraint(equalTo: filterStackView.bottomAnchor),
-            filterStackView.heightAnchor.constraint(equalTo: filterStackView.heightAnchor),
+            filterStackView.topAnchor.constraint(equalTo: filterScrollView.topAnchor),
+            filterStackView.leadingAnchor.constraint(equalTo: filterScrollView.leadingAnchor, constant: 24),
+            filterStackView.trailingAnchor.constraint(equalTo: filterScrollView.trailingAnchor, constant: -24),
+            filterStackView.bottomAnchor.constraint(equalTo: filterScrollView.bottomAnchor),
+            filterStackView.heightAnchor.constraint(equalToConstant: 40),
             
         ])
         
@@ -142,4 +148,128 @@ class HomeView: UIView {
         ])
         
     }
+    
+    
+    func configureTableViewDelegate(_ delegate: UITableViewDelegate, dataSource: UITableViewDataSource) {
+        placesTableView.delegate = delegate
+        placesTableView.dataSource = dataSource
+
+    }
+    
+    func updateFilterButtons(with categories: [Category], action: @escaping (Category) -> Void) {
+        let categoryIcons: [String: String] = [
+            "Alimentação" : "fork.knife",
+            "Compras" : "cart",
+            "Hospedagem" : "bed.double",
+            "Padaria" : "cup.and.saucer",
+        ]
+        
+        self.categories = categories
+        self.filterButtonAction = action
+        
+        for (index, categories) in categories.enumerated() {
+            let iconName = categoryIcons[categories.name] ?? "questionmark.circle"
+            let button = createFilterButton(title: categories.name, iconName: iconName)
+            button.tag = index
+            button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+            filterStackView.addArrangedSubview(button)
+        }
+    }
+    
+   
+    private func createFilterButton(title: String, iconName: String) -> UIButton {
+         let button = UIButton(type: .system)
+         button.translatesAutoresizingMaskIntoConstraints = false
+         button.setTitle(title, for: .normal)
+         button.setImage(UIImage(systemName: iconName), for: .normal)
+         button.layer.cornerRadius = 8
+         button.tintColor = Colors.gray600
+         button.layer.borderWidth = 1
+         button.layer.borderColor = Colors.gray300.cgColor
+         button.backgroundColor = Colors.gray100
+         button.setTitleColor(Colors.gray600, for: .normal)
+         button.titleLabel?.font = Typography.textSM
+         button.titleLabel?.adjustsFontSizeToFitWidth = false
+         button.titleLabel?.lineBreakMode = .byClipping
+         button.titleLabel?.numberOfLines = 1
+         button.heightAnchor.constraint(equalToConstant: 36).isActive = true
+         button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+         button.imageView?.contentMode = .scaleAspectFit
+         button.imageView?.heightAnchor.constraint(equalToConstant: 16).isActive = true
+         button.imageView?.widthAnchor.constraint(equalToConstant: 16).isActive = true
+         button.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 8)
+
+         
+         return button
+     }
+    
+    
+    private func updateButtonSelectedButton(button: UIButton) {
+        if let previousButton = selectedButton {
+            previousButton.backgroundColor = Colors.gray100
+            previousButton.setTitleColor(Colors.gray600, for: .normal)
+            previousButton.tintColor = Colors.gray600
+        }
+        
+        button.backgroundColor = Colors.greenBase
+        button.setTitleColor(Colors.gray100, for: .normal)
+        button.tintColor = Colors.gray100
+        
+        selectedButton = button
+    }
+    
+   
+    @objc
+    private func filterButtonTapped(_ sender: UIButton) {
+        let selectedCategory = categories[sender.tag]
+        updateButtonSelectedButton(button: sender)
+        filterButtonAction?(selectedCategory)
+        
+    }
+    
+    func reloadTableViewData() {
+        DispatchQueue.main.async {
+            self.placesTableView.reloadData()
+        }
+    }
+    
+    @objc
+    private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        guard let containerTopConstrains = containerTopConstrains else { return }
+        let translation = gesture.translation(in: self)
+        let velocity = gesture.velocity(in: self)
+        
+        switch gesture.state {
+        case .changed:
+            let newConstant = containerTopConstrains.constant + translation.y
+            if newConstant <= 0 && newConstant >= frame.height * 0.5 {
+                containerTopConstrains.constant = newConstant
+                gesture.setTranslation(.zero, in: self)
+            }
+        case .ended:
+            let halfScreenHeight = -frame.height * 0.25
+            let finalPosition: CGFloat
+            
+            if velocity.y > 0 {
+                finalPosition = -16
+            } else {
+                finalPosition = halfScreenHeight
+            }
+          
+            UIView.animate(withDuration: 0.3,
+                           animations: {
+                self.containerTopConstrains?.constant = finalPosition
+                self.layoutIfNeeded()
+            })
+        default:
+            break
+        }
+    }
+    
+    func setupPanGesture() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector((handlePanGesture)))
+        containerView.addGestureRecognizer(panGesture)
+        
+    }
+    
 }

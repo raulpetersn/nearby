@@ -158,10 +158,11 @@ class HomeView: UIView {
     
     func updateFilterButtons(with categories: [Category], action: @escaping (Category) -> Void) {
         let categoryIcons: [String: String] = [
-            "Alimentação" : "fork.knife",
-            "Compras" : "cart",
-            "Hospedagem" : "bed.double",
-            "Padaria" : "cup.and.saucer",
+            "Alimentação" : "foodIcon",
+            "Compras" : "marketCarIcon",
+            "Hospedagem" : "hostingIcon",
+            "Padaria" : "coffeeShopIcon",
+            "Cinema" : "cinemaIcon",
         ]
         
         self.categories = categories
@@ -172,6 +173,11 @@ class HomeView: UIView {
             let button = createFilterButton(title: categories.name, iconName: iconName)
             button.tag = index
             button.addTarget(self, action: #selector(filterButtonTapped(_:)), for: .touchUpInside)
+            
+            if categories.name == "Alimentação" {
+                updateButtonSelectedButton(button: button)
+            }
+            
             filterStackView.addArrangedSubview(button)
         }
     }
@@ -181,7 +187,7 @@ class HomeView: UIView {
          let button = UIButton(type: .system)
          button.translatesAutoresizingMaskIntoConstraints = false
          button.setTitle(title, for: .normal)
-         button.setImage(UIImage(systemName: iconName), for: .normal)
+         button.setImage(UIImage(named: iconName), for: .normal)
          button.layer.cornerRadius = 8
          button.tintColor = Colors.gray600
          button.layer.borderWidth = 1

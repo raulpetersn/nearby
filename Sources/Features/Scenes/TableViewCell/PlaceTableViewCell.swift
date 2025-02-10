@@ -15,7 +15,7 @@ class PlaceTableViewCell: UITableViewCell {
     let containerView: UIView = {
         let containerView = UIView()
         containerView.layer.cornerRadius = 8
-        containerView.layer.borderWidth = 1
+        containerView.layer.borderWidth = 2
         containerView.layer.borderColor = Colors.gray200.cgColor
         containerView.translatesAutoresizingMaskIntoConstraints = false
         return containerView
@@ -92,7 +92,7 @@ class PlaceTableViewCell: UITableViewCell {
         NSLayoutConstraint.activate([
             
             containerView.topAnchor.constraint(equalTo: topAnchor, constant: 8),
-            containerView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 8),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
             containerView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -8),
             containerView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -8),
             
@@ -104,7 +104,7 @@ class PlaceTableViewCell: UITableViewCell {
             itemImageView.heightAnchor.constraint(equalToConstant: 104),
             
             titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 8),
-            titleLabel.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 16),
+            titleLabel.leadingAnchor.constraint(equalTo: itemImageView.trailingAnchor, constant: 8),
             titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -8),
             
             descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 4),

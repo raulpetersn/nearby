@@ -9,6 +9,8 @@ import UIKit
 
 class WelcomeView: UIView {
     
+    var didTapButton: (() -> Void)?
+    
     private let logoImageView: UIImageView = {
         let image = UIImageView()
         image.image = UIImage(named: "logoIcon")
@@ -62,6 +64,7 @@ class WelcomeView: UIView {
         btnStart.layer.cornerRadius = 8
         btnStart.translatesAutoresizingMaskIntoConstraints = false
         btnStart.titleLabel?.font = Typography.action
+        btnStart.addTarget(self, action: #selector(didTap), for: .touchUpInside)
         return btnStart
     }()
     
@@ -72,6 +75,11 @@ class WelcomeView: UIView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    @objc
+    private func didTap() {
+        didTapButton?()
     }
     
     private func setupUI() {

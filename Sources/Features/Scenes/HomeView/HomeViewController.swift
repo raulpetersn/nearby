@@ -121,6 +121,13 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+        
+        let details = DetailsViewController()
+        
+        details.place = places[indexPath.row]
+        details.title = places[indexPath.row].name
+        navigationController?.pushViewController(details, animated: true)
+        
     }
     
     
